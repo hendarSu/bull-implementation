@@ -1,10 +1,25 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { BullModule } from 'nest-bull';
+import { DoneCallback, Job } from 'bull';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    BullModule.register({
+      name: 'store',
+      options: {
+        redis: {
+          port: 6379,
+        },
+      },
+      processors: [
+        (job: Job, done: DoneCallback) => { done(null, job.data); },
+      ],
+    }),
+  ],
+  controllers: [
+    AppController,
+  ],
 })
+
 export class AppModule {}
